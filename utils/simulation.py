@@ -5,7 +5,7 @@ from sklearn import preprocessing
 from scipy.spatial.distance import pdist, squareform
 
 from .optimization import port_minvol, port_maxret, port_minvol_ro
-
+import streamlit as st
 
 def bootstrap(returns):
     return resample(returns, replace=True, n_samples=None)
@@ -38,7 +38,7 @@ def efficient_frontier(mean, sigma, truemean, truesigma, nb_assets):
         v[0, 2 * i + 1] = sig_ro_RS
     return weights_matrix, v
 
-
+@st.cache_data(ttl=86400)
 def simul_EF(returns, mean, cov, nb_assets):
     nb_simul = 100
     weights_matrix_S = np.zeros((20, nb_assets + 2, nb_simul))

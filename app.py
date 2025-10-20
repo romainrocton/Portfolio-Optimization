@@ -1,6 +1,9 @@
 # app.py
 import streamlit as st
 import numpy as np
+from PIL import Image
+
+
 
 from utils.data_extraction import (
     extract_index_components,
@@ -12,8 +15,17 @@ from utils.data_extraction import (
 from utils.optimization import port_minvol, port_maxret, port_minvol_ro
 from utils.simulation import simul_EF
 from utils.visualization import weights_plots_minv
+from utils.config import THEME_COLORS
+from utils.theme import add_logo, apply_theme
 
-st.set_page_config(page_title="European stocks selector & optimizer", layout="wide")
+# --- Background & Texte 
+#apply_theme()
+
+st.set_page_config(page_title="European stocks selector & optimizer", layout="wide",initial_sidebar_state="collapsed")
+# --- LOGO FIXE EN HAUT À DROITE ---
+image_path = "logo/Quantiva.PNG"
+add_logo(image_path)
+
 
 
 def main():
@@ -51,11 +63,16 @@ def main():
         names = [c["company"] for c in companies]
         index_to_actions[index_name] = names
 
+
     # map ticker -> company name
     dico_index = {}
     for t, name in zip(tick, corpo):
         if t not in dico_index:
             dico_index[t] = name
+
+    for index_name, names in index_to_actions.items():
+        index_to_actions[index_name] = [n for n in names if n in dico_index.values()]
+    
 
     # rename columns to company names where possible and drop duplicates
     data = data.rename(columns=dico_index)
@@ -67,7 +84,7 @@ def main():
     # UI: stock selection
     st.write("")
     selected_display = st.empty()
-
+    st.write("")
     selected_companies = []
     for index_name, actions in index_to_actions.items():
         with st.expander(index_name):
@@ -76,11 +93,11 @@ def main():
 
     if selected_companies:
         selected_display.markdown(
-            "<h4>Selected Stocks:</h4>" +
+            "<h4 style='margin-bottom: 10px;'>Selected Stocks:</h4>" +
             "".join([
-                f"<span style='font-size:15px; background-color:#f0f2f6; "
-                f"border-radius:10px; padding:5px 10px; margin:3px; "
-                f"display:inline-block;'>{item}</span>"
+                f"<span style='font-size:15px; background-color:#3a3f51; "
+                f"color:#f8f9fa; border-radius:10px; padding:5px 10px; "
+                f"margin:3px; display:inline-block;'>{item}</span>"
                 for item in selected_companies
             ]),
             unsafe_allow_html=True
@@ -88,7 +105,7 @@ def main():
     else:
         selected_display.markdown("No stocks selected yet.")
     selected = selected_companies
-
+    
     # Session state initialization
     if "validated" not in st.session_state:
         st.session_state.validated = False
@@ -125,7 +142,6 @@ def main():
         selected_returns = np.array(used_returns)
         assets_names = used_returns.columns
         nb_assets = len(assets_names)
-        nb_obs = selected_returns.shape[0]
 
         mean = np.average(selected_returns, axis=0)
         covariance_matrix = np.cov(selected_returns, rowvar=False)
@@ -154,7 +170,7 @@ def main():
                 "Mid Return/Risk": weights_S2,
                 "High Return/Risk": weights_S3,
             }
-
+            
             cols = st.columns(3)
             own_vs_guided = ["Proposition of Portfolios with Inputed Stocks", "Investor's choices"]
             for i, management_type in enumerate(own_vs_guided):
@@ -173,11 +189,13 @@ def main():
                 if typptf == "Minimum Risk":
                     weights_plots_minv("Minimum Risk", weights_MV, assets_names, used_returns, used_px)
                 else:
-                    cols = st.columns(3)
-                    for i, ptf_name in enumerate(PTF_S):
-                        if cols[i].button(ptf_name):
-                            st.session_state.chosen_ptf = ptf_name
-                    chosen_ptf = st.session_state.chosen_ptf
+                    #cols = st.columns(3)
+                    risk_level = st.select_slider(
+                    "Select your preferred portfolio",
+                    options=PTF_S,
+                    value=PTF_S[0],  # default selection
+                    help="Select your preferred portfolio out of the three options")
+                    chosen_ptf = risk_level
                     weights_plots_minv(chosen_ptf, dico_ptf[chosen_ptf], assets_names, used_returns, used_px)
             else:
                 invest_choice = ["Investment Percentage", "Target Annual Return"]
