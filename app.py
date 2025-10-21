@@ -16,7 +16,9 @@ from utils.optimization import port_minvol, port_maxret, port_minvol_ro
 from utils.simulation import simul_EF
 from utils.visualization import Portfolio_presentation
 from utils.config import THEME_COLORS
+from utils.config import dico_pays
 from utils.theme import add_logo, apply_theme
+from utils.stock_selection import stock_selection_page
 
 # --- Background & Texte 
 #apply_theme()
@@ -81,30 +83,9 @@ def main():
     data_c.sort_index(inplace=True)
     returns = data_c.pct_change().dropna()
 
-    # UI: stock selection
-    st.write("")
-    selected_display = st.empty()
-    st.write("")
-    selected_companies = []
-    for index_name, actions in index_to_actions.items():
-        with st.expander(index_name):
-            selected = st.multiselect(f"Select stocks from {index_name}", options=actions, key=f"ms_{index_name}")
-            selected_companies.extend(selected)
+    
 
-    if selected_companies:
-        selected_display.markdown(
-            "<h4 style='margin-bottom: 10px;'>Selected Stocks:</h4>" +
-            "".join([
-                f"<span style='font-size:15px; background-color:#3a3f51; "
-                f"color:#f8f9fa; border-radius:10px; padding:5px 10px; "
-                f"margin:3px; display:inline-block;'>{item}</span>"
-                for item in selected_companies
-            ]),
-            unsafe_allow_html=True
-        )
-    else:
-        selected_display.markdown("No stocks selected yet.")
-    selected = selected_companies
+    selected = stock_selection_page(indices, index_to_actions)
     
     # Session state initialization
     if "validated" not in st.session_state:
@@ -122,7 +103,7 @@ def main():
     if "weights" not in st.session_state:
         st.session_state.weights = None
 
-    validate = st.button("✅ Validate Selection")
+    validate = st.button("Validate Selection")
     if validate:
         if len(selected) == 0:
             st.info("Please select at least 1 stock before validation")
