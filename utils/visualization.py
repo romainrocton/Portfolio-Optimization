@@ -45,19 +45,34 @@ def performance_graph(cum_perf,horizon):
 
         chart_title="Historical Portfolio's price evolution"
         st.subheader(chart_title)
+        y_min = round(df["Value"].min() * 0.95,0)  # 5% below the actual min
+        y_max = round(df["Value"].max() * 1.05,0)  # 5% above the max (optional padding)
+        y_axis = alt.Y("Value:Q", title="Value", scale=alt.Scale(domain=[y_min, y_max],zero=False))
 
-        chart = (
-        alt.Chart(df)
-        .mark_line(color=color, interpolate="monotone")
-        .encode(
-             x="Date:T", 
-             y=alt.Y("Value:Q", title="Value"), 
-             tooltip=["Date:T", alt.Tooltip("Value:Q", format=",.0f")])
-        .properties(title=alt.TitleParams(text=chart_subtitle,color=color, anchor="middle"))
+        
+        # Invisible rule just to force axis
+        axis_rule = alt.Chart(df).mark_rule(opacity=0).encode(
+            y=alt.Y("Value:Q", scale=alt.Scale(domain=[y_min, y_max], zero=False))
         )
 
-        area = chart.mark_area(opacity=0.15)
-        st.altair_chart(chart+area,use_container_width=True)
+        line = alt.Chart(df).mark_line(color=color).encode(
+            x="Date:T",
+            y="Value:Q",
+            tooltip=["Date:T", alt.Tooltip("Value:Q", format=".2f")]
+        )
+        # Area from a baseline (like y_min) up to the line
+        area = alt.Chart(df).mark_area(opacity=0.15, color=color).encode(
+            x="Date:T",
+            y="Value:Q",
+            y2=alt.Y2Value(y_min))  # baseline for the area
+        
+        chart = (axis_rule+line).properties(
+            title=alt.TitleParams(
+                text=chart_subtitle,
+                color=color,
+                anchor="middle" ))
+        #area = chart.mark_area(opacity=0.15)
+        st.altair_chart(chart, use_container_width=True)
 
 def weights_graph(weights_ptf,asset_names):
         st.subheader("Portfolio Repartition")

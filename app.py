@@ -12,7 +12,7 @@ from utils.data_extraction import (
     old_tickers,
     extract_data,
 )
-from utils.optimization import port_minvol, port_maxret, port_minvol_ro
+from utils.optimization import port_minvol, port_maxret, port_minvol_ro, port_maxsr
 from utils.simulation import simul_EF
 from utils.visualization import Portfolio_presentation
 from utils.config import THEME_COLORS
@@ -93,9 +93,9 @@ def main():
     if "submitt" not in st.session_state:
         st.session_state.submitt = False
     if "typptf" not in st.session_state:
-        st.session_state.typptf = "Minimum Risk"
+        st.session_state.typptf = "Minimum Risk Portfolio"
     if "MT" not in st.session_state:
-        st.session_state.MT = "Proposition of Portfolios with Inputed Stocks"
+        st.session_state.MT = "Portfolio Optimization"
     if "chosen_ptf" not in st.session_state:
         st.session_state.chosen_ptf = "High Return/Risk"
     if "weightsorreturn" not in st.session_state:
@@ -153,22 +153,25 @@ def main():
             }
             
             cols = st.columns(3)
-            own_vs_guided = ["Proposition of Portfolios with Inputed Stocks", "Investor's choices"]
+            own_vs_guided = ["Portfolio Optimization", "Tailor-Made Portfolio"]
             for i, management_type in enumerate(own_vs_guided):
                 if cols[i].button(management_type):
                     st.session_state.MT = management_type
             MT = st.session_state.MT
 
-            if MT == "Proposition of Portfolios with Inputed Stocks":
+            if MT == "Portfolio Optimization":
                 typptf = st.selectbox(
                     "**Choose the portfolio type**",
-                    ["Minimum Risk", "Sample"],
-                    index=0 if st.session_state.typptf is None else (0 if st.session_state.typptf == "Minimum Risk" else 1),
+                    ["Minimum Risk Portfolio", "Recommended Portfolios", "Maximum Return/Risk Portfolio"],
+                    index=0 if st.session_state.typptf is None else (0 if st.session_state.typptf == "Minimum Risk Portfolio" else 1),
                 )
                 st.session_state.typptf = typptf
 
-                if typptf == "Minimum Risk":
-                    Portfolio_presentation("Minimum Risk", weights_MV, assets_names, used_returns, used_px)
+                if typptf == "Minimum Risk Portfolio":
+                    Portfolio_presentation("Minimum Risk Portfolio", weights_MV, assets_names, used_returns, used_px)
+                elif typptf =="Maximum Return/Risk Portfolio":
+                    weights_MaxSR= port_maxsr(mean, covariance_matrix, rf=0.0)
+                    Portfolio_presentation("Maximum Return/Risk Portfolio", weights_MaxSR, assets_names, used_returns, used_px)
                 else:
                     #cols = st.columns(3)
                     risk_level = st.select_slider(
@@ -179,13 +182,13 @@ def main():
                     chosen_ptf = risk_level
                     Portfolio_presentation(chosen_ptf, dico_ptf[chosen_ptf], assets_names, used_returns, used_px)
             else:
-                invest_choice = ["Investment Percentage", "Target Annual Return"]
+                invest_choice = ["Custom Weights Portfolio", "Target Return Portfolio"]
                 weightsorreturn = st.selectbox(
                     "**Select the characteristics you want to impose**", invest_choice, index=0 if st.session_state.weightsorreturn == "Investment Percentage" else 1
                 )
                 st.session_state.weightsorreturn = weightsorreturn
 
-                if weightsorreturn == "Investment Percentage":
+                if weightsorreturn == "Custom Weights Portfolio":
                     with st.form("my_form"):
                         weights_vector = []
                         for item in assets_names:

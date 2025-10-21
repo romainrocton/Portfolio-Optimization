@@ -46,3 +46,22 @@ def port_maxret(mean, cov):
     c_ = ({"type": "eq", "fun": lambda W: sum(W) - 1.},)
     optimized = opt.minimize(objective, W, (mean, cov), method="SLSQP", constraints=c_, bounds=b_, options={"maxiter": 100, "ftol": 1e-08})
     return optimized.x
+
+def port_maxsr(mean, cov, rf):
+    def objective(W, R, C, rf):
+        # calculate mean/variance of the portfolio
+        meanp=np.dot(W.T,mean)
+        varp=np.dot(np.dot(W.T,cov),W)
+        #objective: Max Sharpe ratio
+        util=(meanp-rf)/varp**0.5
+        return 1/util
+    n=len(cov)
+    # initial conditions: equal weights
+    W=np.ones([n])/n                 
+    # weights between 0%..100%: no shorts
+    b_=[(0.,1.) for i in range(n)]   
+    # No leverage: unitary constraint (sum weights = 100%)
+    c_= ({'type':'eq', 'fun': lambda W: sum(W)-1. })
+    optimized=opt.minimize(objective,W,(mean,cov,rf),
+        method='SLSQP',constraints=c_,bounds=b_,options={'maxiter': 100, 'ftol': 1e-08})
+    return optimized.x
