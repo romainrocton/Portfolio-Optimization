@@ -8,9 +8,44 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
 import altair as alt
+from utils.config import dico_sectors
+
+def sectors(weights_ptf,asset_names):
+    # Create reverse mapping: company → sector
+    company_to_sector = {
+        company: sector
+        for sector, company_list in dico_sectors.items()
+        for company in company_list
+    }
+
+    # Build the list of sectors in the same order as 'companies'
+    sectors_in_order = [company_to_sector[company] for company in asset_names]
+    st.subheader("Portfolio Repartition in sectors")
+    fig2, ax2 = plt.subplots(figsize=(8, 10))
+
+    threshold = 0.002
+    filtered_weights = []
+    filtered_sectors = []
+    for w, a in zip(weights_ptf, sectors_in_order):
+        if w > threshold:
+                filtered_weights.append(w)
+                filtered_sectors.append(a)
+
+    chart_data = pd.DataFrame({"Sector": filtered_sectors, "Weight": filtered_weights})
+        
+    chart = (
+    alt.Chart(chart_data)
+    .mark_arc(outerRadius=120, innerRadius=60)
+    .encode(
+    theta="Weight",
+    color=alt.Color("Sector", legend=alt.Legend(title="Sectors repartition"), scale=alt.Scale(scheme="blues")),
+    tooltip=["Sector", alt.Tooltip("Weight", format=".2%")],))
+
+    st.altair_chart(chart, use_container_width=True)
+
 
 def weights_tabledisplay(weights_ptf,assets_names_ptf):
-    df_table_R = pd.DataFrame({"Repartition": [f"{w:.1%}" for w in weights_ptf]}, index=assets_names_ptf)
+    df_table_R = pd.DataFrame({"Repartition": [f"{w:.2%}" for w in weights_ptf]}, index=assets_names_ptf)
     df_table_R.index.name = "Stock"
 
     html = df_table_R.T.to_html(index=True, justify="center", border=0, classes="styled-table")
@@ -146,4 +181,9 @@ def Portfolio_presentation(type_name, weights, assets_names, used_returns, used_
         
     with col2:
         weights_graph(weights,assets_names)
+    
+    col1, col2,col3 = st.columns([1, 2, 1])
+
+    with col2:
+        sectors(weights,assets_names)
         

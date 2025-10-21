@@ -1,4 +1,6 @@
 from typing import Final, Sequence
+import pandas as pd
+import os
 
 # --- Colors for Streamlit (CSS) ---
 THEME_COLORS: Final[dict[str, str]] = {
@@ -24,3 +26,14 @@ dico_pays["DAX 40"]="Germany"
 dico_pays["AEX 25"]="Netherlands"
 dico_pays["IBEX 35"]="Spain"
 dico_pays["FTSE MIB"]="Italy"
+
+# Dictionary mapping stocks to their sectors
+file_path = os.path.join("sectors", "Sectors.xlsx")
+df_sectors = pd.read_excel(file_path)
+nb_total_assets=df_sectors.shape[0]
+dico_sectors={}
+for i in range(nb_total_assets):
+    if df_sectors.iloc[i,2] not in dico_sectors:
+        dico_sectors[df_sectors.iloc[i,2]]=[df_sectors.iloc[i,1]]
+    else:
+        dico_sectors[df_sectors.iloc[i,2]].append((df_sectors.iloc[i,1]))

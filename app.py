@@ -200,7 +200,7 @@ def main():
                                     f"Weight in {item} (%)", min_value=0.0, max_value=100.0, step=0.01, key=f"input_{item}"
                                 )
                                 weights_vector.append(w / 100)
-                        submitt = st.form_submit_button("✅ Confirm Repartition")
+                        submitt = st.form_submit_button("Confirm Repartition")
                     if submitt:
                         total_weight = sum(weights_vector)
                         if abs(total_weight - 1) > 1e-6:
