@@ -15,3 +15,12 @@ THEME_COLORS: Final[dict[str, str]] = {
     "slider_active": "#6366F1",
     "slider_thumb": "#EF4444",
 }
+
+# Dictionary mapping indices to their countries
+
+dico_pays={}
+dico_pays["CAC 40"]="France"    
+dico_pays["DAX 40"]="Germany"
+dico_pays["AEX 25"]="Netherlands"
+dico_pays["IBEX 35"]="Spain"
+dico_pays["FTSE MIB"]="Italy"
