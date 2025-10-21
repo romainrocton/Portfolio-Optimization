@@ -28,9 +28,6 @@ def stock_selection_page(indices, index_to_actions):
     #st.write("")
     selected_companies = []
 
-
-
-
     for index_name in selected_indices:
         actions = index_to_actions.get(index_name, [])
         if actions:
