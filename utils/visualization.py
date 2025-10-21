@@ -148,11 +148,23 @@ def Portfolio_presentation(type_name, weights, assets_names, used_returns, used_
 
     metric_cols = st.columns(3)
     with metric_cols[0]:
-        st.metric("Expected annual return", f"{portfolio_annualized_return*100:.2f}%")
+        st.metric(
+             label="Expected Annual Return", 
+             value=f"{portfolio_annualized_return*100:.2f}%",
+             help="Average yearly return of the portfolio based on historical daily returns."
+            )
     with metric_cols[1]:
-        st.metric("Expected annual volatility", f"{portfolio_annualized_vol*100:.2f}%")
+        st.metric(
+             label="Expected Annual Volatility", 
+             value=f"{portfolio_annualized_vol*100:.2f}%",
+             help="Annualized standard deviation of daily returns, indicating portfolio risk."
+             )
     with metric_cols[2]:
-        st.metric("Return / Risk score", f"{portfolio_annualized_sharpe:.2f}")
+        st.metric(
+             label="Return / Risk Score", 
+             value=f"{portfolio_annualized_sharpe:.2f}",
+             help="Ratio of expected return to volatility (Sharpe ratio); higher values indicate better risk-adjusted performance."
+             )
 
     # -------------------------------
     # Table of weights

@@ -63,6 +63,11 @@ def apply_theme():
         .stMetric > div {{
             background-color: {THEME_COLORS['metric_bg']};
         }}
+        /* --- Multiselect tags --- */
+        div.stMultiSelect > div[role="listbox"] div.css-1d391kg {{
+            background-color: {THEME_COLORS['tag_bg']} !important;  /* Purple or custom */
+            color: {THEME_COLORS['tag_text']} !important;          /* Text color */
+        }}
 
         /* Optional: Sliders */
         .stSlider .css-1aumxhk .stSlider>div>div>div {{
