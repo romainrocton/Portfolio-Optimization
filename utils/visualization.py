@@ -72,7 +72,7 @@ def weights_graph(weights_ptf,asset_names):
                 filtered_assets.append(a)
 
         chart_data = pd.DataFrame({"Stock": filtered_assets, "Weight": filtered_weights})
-        # Use seaborn palette but do not force colors
+        
         chart = (
         alt.Chart(chart_data)
         .mark_arc(outerRadius=120, innerRadius=60)
@@ -83,7 +83,7 @@ def weights_graph(weights_ptf,asset_names):
 
         st.altair_chart(chart, use_container_width=True)
 
-def weights_plots_minv(type_name, weights, assets_names, used_returns, used_px):
+def Portfolio_presentation(type_name, weights, assets_names, used_returns, used_px):
     today = date.today()
 
     portfolio_returns = used_returns.dot(weights)
@@ -110,7 +110,7 @@ def weights_plots_minv(type_name, weights, assets_names, used_returns, used_px):
 
     # Horizon selection and data filtration
     periods = ["1M", "6M", "1Y", "5Y", "10Y", "20Y", "MAX"]
-    horizon = st.radio("Choose horizon:", periods, horizontal=True)
+    horizon = st.radio("**Choose horizon:**", periods, horizontal=True)
 
     if horizon != "MAX":
         if horizon[-1] == "Y":

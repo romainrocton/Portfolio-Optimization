@@ -14,7 +14,7 @@ from utils.data_extraction import (
 )
 from utils.optimization import port_minvol, port_maxret, port_minvol_ro
 from utils.simulation import simul_EF
-from utils.visualization import weights_plots_minv
+from utils.visualization import Portfolio_presentation
 from utils.config import THEME_COLORS
 from utils.theme import add_logo, apply_theme
 
@@ -150,7 +150,7 @@ def main():
         if len(selected) == 1:
             w_1stock = np.zeros(len(selected))
             w_1stock[0] = 1
-            weights_plots_minv("Single Stock", w_1stock, assets_names, used_returns, used_px)
+            Portfolio_presentation("Single Stock", w_1stock, assets_names, used_returns, used_px)
         else:
             # run simulation to generate a set of candidate portfolios (keeps your original simulation logic)
             weights_MV, weights_S1, weights_S2, weights_S3, weights_MaxRet = simul_EF(
@@ -187,7 +187,7 @@ def main():
                 st.session_state.typptf = typptf
 
                 if typptf == "Minimum Risk":
-                    weights_plots_minv("Minimum Risk", weights_MV, assets_names, used_returns, used_px)
+                    Portfolio_presentation("Minimum Risk", weights_MV, assets_names, used_returns, used_px)
                 else:
                     #cols = st.columns(3)
                     risk_level = st.select_slider(
@@ -196,7 +196,7 @@ def main():
                     value=PTF_S[0],  # default selection
                     help="Select your preferred portfolio out of the three options")
                     chosen_ptf = risk_level
-                    weights_plots_minv(chosen_ptf, dico_ptf[chosen_ptf], assets_names, used_returns, used_px)
+                    Portfolio_presentation(chosen_ptf, dico_ptf[chosen_ptf], assets_names, used_returns, used_px)
             else:
                 invest_choice = ["Investment Percentage", "Target Annual Return"]
                 weightsorreturn = st.selectbox(
@@ -224,7 +224,7 @@ def main():
                         else:
                             st.session_state.weights = np.array(weights_vector)
                     if st.session_state.weights is not None:
-                        weights_plots_minv("Your Choice", st.session_state.weights, assets_names, used_returns, used_px)
+                        Portfolio_presentation("Your Choice", st.session_state.weights, assets_names, used_returns, used_px)
                 else:
                     # target return flow
                     st.markdown("Define your target annualized return")
@@ -246,7 +246,7 @@ def main():
 
                     if "opt_target" in st.session_state:
                         opt_target = st.session_state["opt_target"]
-                        weights_plots_minv("Your Optimized", opt_target, assets_names, used_returns, used_px)
+                        Portfolio_presentation("Your Optimized", opt_target, assets_names, used_returns, used_px)
                     else:
                         st.info("Choose a target return and click 'Launch Portfolio Optimization' to see the optimized portfolio.")
 
