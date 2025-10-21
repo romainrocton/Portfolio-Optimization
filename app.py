@@ -200,7 +200,7 @@ def main():
             else:
                 invest_choice = ["Investment Percentage", "Target Annual Return"]
                 weightsorreturn = st.selectbox(
-                    "**What do you wish to choose**", invest_choice, index=0 if st.session_state.weightsorreturn == "Investment Percentage" else 1
+                    "**Select the characteristics you want to impose**", invest_choice, index=0 if st.session_state.weightsorreturn == "Investment Percentage" else 1
                 )
                 st.session_state.weightsorreturn = weightsorreturn
 
@@ -227,10 +227,12 @@ def main():
                         Portfolio_presentation("Your Choice", st.session_state.weights, assets_names, used_returns, used_px)
                 else:
                     # target return flow
-                    st.markdown("Define your target annualized return")
-                    st.write(f"Enter a target between **{portfolio_annualized_return_MV*100:.2f}%** and **{portfolio_annualized_return_MR*100:.2f}%** per year.")
+
+                    subtitle_targetreturn=f"*Enter a target between **{portfolio_annualized_return_MV*100:.2f}%** and **{portfolio_annualized_return_MR*100:.2f}%** per year.*"
+                    st.markdown("Define your target annualized return: "+str(subtitle_targetreturn))
+                    
                     target_return = st.number_input(
-                        "Objectif de rendement annuel (%)",
+                        "Annual Return Target (%)",
                         min_value=portfolio_annualized_return_MV * 100,
                         max_value=portfolio_annualized_return_MR * 100,
                         value=(portfolio_annualized_return_MV * 100 + portfolio_annualized_return_MR * 100) / 2,
