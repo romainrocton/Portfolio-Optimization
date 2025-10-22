@@ -108,33 +108,33 @@ def simul_Single_PTF(type,returns, mean, cov, nb_assets,targetreturn=0,rf=0):
     PTF_Weights = weights_matrix_S[clusteroid_idx,:]
 
     ###to remove after plotting for checking
-    original=port_minvol_ro(meanS,sigmaS,targetreturn)
-    og_m=original.T @ mean
-    og_v=(original.T @ cov @ original) ** 0.5
-    col_x, col_y = 1, 0  # the two columns you want from the 2nd dimension
+    #original=port_minvol_ro(meanS,sigmaS,targetreturn)
+    #og_m=original.T @ mean
+    #og_v=(original.T @ cov @ original) ** 0.5
+    #col_x, col_y = 1, 0  # the two columns you want from the 2nd dimension
 
-    n_slices = weights_matrix_S.shape[0]
+    #n_slices = weights_matrix_S.shape[0]
 
-    plt.figure(figsize=(6, 5))
+    #plt.figure(figsize=(6, 5))
 
-    x_vals = vect[:, 1]  # volatility
-    y_vals = vect[:, 0]  # mean return
+    #x_vals = vect[:, 1]  # volatility
+    #y_vals = vect[:, 0]  # mean return
 
-    plt.figure(figsize=(6,5))
-    plt.scatter(x_vals, y_vals, color="blue", label="Simulated portfolios")
+    #plt.figure(figsize=(6,5))
+    #plt.scatter(x_vals, y_vals, color="blue", label="Simulated portfolios")
 
     # Clusteroid
-    plt.scatter(clusteroid[1], clusteroid[0], color="red", s=80, marker="X", label="Clusteroid")
+    #plt.scatter(clusteroid[1], clusteroid[0], color="red", s=80, marker="X", label="Clusteroid")
 
     # Original portfolio
-    plt.scatter(og_v, og_m, color="green", s=80, marker="D", label="Original")
+    #plt.scatter(og_v, og_m, color="green", s=80, marker="D", label="Original")
 
-    plt.xlabel("Volatility")
-    plt.ylabel("Mean Return")
-    plt.title("Simulated Efficient Frontiers + Clusteroid")
-    plt.grid(True)
-    plt.legend()
+    #plt.xlabel("Volatility")
+    #plt.ylabel("Mean Return")
+    #plt.title("Simulated Efficient Frontiers + Clusteroid")
+    #plt.grid(True)
+    #plt.legend()
 
-    st.pyplot(plt)
+    #st.pyplot(plt)
     # Returns the clusteriod portfolio 
     return PTF_Weights
