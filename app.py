@@ -13,7 +13,7 @@ from utils.data_extraction import (
     extract_data,
 )
 from utils.optimization import port_minvol, port_maxret, port_minvol_ro, port_maxsr
-from utils.simulation import simul_EF
+from utils.simulation import simul_EF, simul_Single_PTF
 from utils.visualization import Portfolio_presentation
 from utils.config import THEME_COLORS
 from utils.config import dico_pays
@@ -170,7 +170,8 @@ def main():
                 if typptf == "Minimum Risk Portfolio":
                     Portfolio_presentation("Minimum Risk Portfolio", weights_MV, assets_names, used_returns, used_px)
                 elif typptf =="Maximum Return/Risk Portfolio":
-                    weights_MaxSR= port_maxsr(mean, covariance_matrix, rf=0.0)
+                    #weights_MaxSR= port_maxsr(mean, covariance_matrix, rf=0.0)
+                    weights_MaxSR= simul_Single_PTF("Max_Sharpe",selected_returns, mean, covariance_matrix, nb_assets,0,0)
                     Portfolio_presentation("Maximum Return/Risk Portfolio", weights_MaxSR, assets_names, used_returns, used_px)
                 else:
                     #cols = st.columns(3)
@@ -226,7 +227,8 @@ def main():
 
                     if st.button("Launch Portfolio Optimization"):
                         target_return_daily = target_return / 100 / 252
-                        opt_target = port_minvol_ro(mean, covariance_matrix, target_return_daily)
+                        opt_target = simul_Single_PTF("Target_Return",selected_returns, mean, covariance_matrix, nb_assets,target_return_daily)
+                        #opt_target = port_minvol_ro(mean, covariance_matrix, target_return_daily)
                         st.session_state["opt_target"] = opt_target
                         st.session_state["target_return_daily"] = target_return_daily
 

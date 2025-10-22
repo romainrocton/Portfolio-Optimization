@@ -23,6 +23,7 @@ def sectors(weights_ptf,asset_names):
     st.subheader("Portfolio Repartition in sectors")
     fig2, ax2 = plt.subplots(figsize=(8, 10))
 
+    # Ensure we remove all weights inferior to a threshold (here 0.002) to avoid plotting non significant data
     threshold = 0.002
     filtered_weights = []
     filtered_sectors = []
@@ -31,14 +32,26 @@ def sectors(weights_ptf,asset_names):
                 filtered_weights.append(w)
                 filtered_sectors.append(a)
 
-    chart_data = pd.DataFrame({"Sector": filtered_sectors, "Weight": filtered_weights})
+    # Compute the cumulated weight associated with each sector
+    summed_weights = []
+    summed_sectors = []
+    for i in range(len(filtered_sectors)):
+        if filtered_sectors[i] in summed_sectors:
+              index_summed=summed_sectors.index(filtered_sectors[i])
+              summed_weights[index_summed]=summed_weights[index_summed]+filtered_weights[i] 
+        else:
+             summed_sectors.append(filtered_sectors[i])
+             summed_weights.append(filtered_weights[i])
+    
+    # Plots the graph
+    chart_data = pd.DataFrame({"Sector": summed_sectors, "Weight": summed_weights})
         
     chart = (
     alt.Chart(chart_data)
     .mark_arc(outerRadius=120, innerRadius=60)
     .encode(
     theta="Weight",
-    color=alt.Color("Sector", legend=alt.Legend(title="Sectors repartition"), scale=alt.Scale(scheme="blues")),
+    color=alt.Color("Sector", legend=alt.Legend(title="Sectors repartition"), scale=alt.Scale(scheme="purples")),
     tooltip=["Sector", alt.Tooltip("Weight", format=".2%")],))
 
     st.altair_chart(chart, use_container_width=True)
@@ -50,6 +63,7 @@ def weights_tabledisplay(weights_ptf,assets_names_ptf):
 
     html = df_table_R.T.to_html(index=True, justify="center", border=0, classes="styled-table")
 
+    # Pretty printing
     st.markdown(
         """
     <style>
@@ -67,6 +81,7 @@ def performance_graph(cum_perf,horizon):
         df = cum_perf.reset_index()
         df.columns = ["Date", "Value"]
 
+        # Computes the move and check whether the portfolio plotted is bullish/bearish as per the horizon selected
 
         delta = round(df["Value"].iloc[-1] - df["Value"].iloc[1],2)
         move=round(100*delta/df["Value"].iloc[1],2)
@@ -78,15 +93,16 @@ def performance_graph(cum_perf,horizon):
             chart_subtitle = str((delta)) + " € in " + horizon + " : " + str(((move))) + " %"
             color = "red"
 
+        # Chart Plot (with a scaling to ensure y-axis adapts to the data)
+
         chart_title="Historical Portfolio's price evolution"
         st.subheader(chart_title)
+
         y_min = round(df["Value"].min() * 0.95,0)  # 5% below the actual min
         y_max = round(df["Value"].max() * 1.05,0)  # 5% above the max (optional padding)
         y_axis = alt.Y("Value:Q", title="Value", scale=alt.Scale(domain=[y_min, y_max],zero=False))
 
-        
-        # Invisible rule just to force axis
-        axis_rule = alt.Chart(df).mark_rule(opacity=0).encode(
+        axis_rule = alt.Chart(df).mark_rule(opacity=0.0).encode(
             y=alt.Y("Value:Q", scale=alt.Scale(domain=[y_min, y_max], zero=False))
         )
 
@@ -95,23 +111,26 @@ def performance_graph(cum_perf,horizon):
             y="Value:Q",
             tooltip=["Date:T", alt.Tooltip("Value:Q", format=".2f")]
         )
-        # Area from a baseline (like y_min) up to the line
+
+        y_scale = alt.Scale(domain=[y_min, y_max], zero=False)
         area = alt.Chart(df).mark_area(opacity=0.15, color=color).encode(
             x="Date:T",
-            y="Value:Q",
-            y2=alt.Y2Value(y_min))  # baseline for the area
+            y=alt.Y("Value:Q", scale=y_scale)
+        )
         
         chart = (axis_rule+line).properties(
             title=alt.TitleParams(
                 text=chart_subtitle,
                 color=color,
                 anchor="middle" ))
-        #area = chart.mark_area(opacity=0.15)
+        
         st.altair_chart(chart, use_container_width=True)
 
 def weights_graph(weights_ptf,asset_names):
         st.subheader("Portfolio Repartition")
         fig2, ax2 = plt.subplots(figsize=(8, 10))
+
+        # Ensure we remove all weights inferior to a threshold (here 0.002) to avoid plotting non significant data
 
         threshold = 0.002
         filtered_weights = []
@@ -120,6 +139,8 @@ def weights_graph(weights_ptf,asset_names):
             if w > threshold:
                 filtered_weights.append(w)
                 filtered_assets.append(a)
+
+        # Plots the graph
 
         chart_data = pd.DataFrame({"Stock": filtered_assets, "Weight": filtered_weights})
         
@@ -149,13 +170,13 @@ def Portfolio_presentation(type_name, weights, assets_names, used_returns, used_
     metric_cols = st.columns(3)
     with metric_cols[0]:
         st.metric(
-             label="Expected Annual Return", 
+             label="Historical Annualized Return", 
              value=f"{portfolio_annualized_return*100:.2f}%",
              help="Average yearly return of the portfolio based on historical daily returns."
             )
     with metric_cols[1]:
         st.metric(
-             label="Expected Annual Volatility", 
+             label="Historical Annualized Volatility", 
              value=f"{portfolio_annualized_vol*100:.2f}%",
              help="Annualized standard deviation of daily returns, indicating portfolio risk."
              )
