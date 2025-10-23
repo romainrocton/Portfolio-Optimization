@@ -4,7 +4,7 @@ import os
 
 # --- Colors for Streamlit (CSS) ---
 THEME_COLORS: Final[dict[str, str]] = {
-    "primary": "#6366F1",
+    "primary": "#1FC5A3",
     "accent": "#8B5CF6",
     "badge_bg": "rgba(99,102,241,0.18)",
     "section_bg": "rgba(255,255,255,0.6)",  # semi-transparent background
@@ -17,6 +17,7 @@ THEME_COLORS: Final[dict[str, str]] = {
     "slider_active": "#6366F1",
     "slider_thumb": "#EF4444",
 }
+
 
 # Dictionary mapping indices to their countries
 

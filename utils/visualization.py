@@ -51,7 +51,7 @@ def sectors(weights_ptf,asset_names):
     .mark_arc(outerRadius=120, innerRadius=60)
     .encode(
     theta="Weight",
-    color=alt.Color("Sector", legend=alt.Legend(title="Sectors repartition"), scale=alt.Scale(scheme="purples")),
+    color=alt.Color("Sector", legend=alt.Legend(title="Sectors Repartition"), scale=alt.Scale(scheme="teals")),
     tooltip=["Sector", alt.Tooltip("Weight", format=".2%")],))
 
     st.altair_chart(chart, use_container_width=True)
@@ -125,6 +125,7 @@ def performance_graph(cum_perf,horizon):
                 anchor="middle" ))
         
         st.altair_chart(chart, use_container_width=True)
+       
 
 def weights_graph(weights_ptf,asset_names):
         st.subheader("Portfolio Repartition")
@@ -149,7 +150,7 @@ def weights_graph(weights_ptf,asset_names):
         .mark_arc(outerRadius=120, innerRadius=60)
         .encode(
             theta="Weight",
-            color=alt.Color("Stock", legend=alt.Legend(title="Holdings"), scale=alt.Scale(scheme="purples")),
+            color=alt.Color("Stock", legend=alt.Legend(title="Stocks"), scale=alt.Scale(scheme="teals")),
             tooltip=["Stock", alt.Tooltip("Weight", format=".2%")],))
 
         st.altair_chart(chart, use_container_width=True)

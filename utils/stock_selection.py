@@ -46,7 +46,7 @@ def stock_selection_page(indices, index_to_actions):
         selected_display.markdown(
             #"<h4 style='margin-bottom: 10px;'>Selected Stocks:</h4>" +
             "".join([
-                f"<span style='font-size:px; background-color:#3a3f51; "
+                f"<span style='font-size:px; background-color:#1E1E25; "
                 f"color:#f8f9fa; border-radius:10px; padding:5px 10px; "
                 f"margin:3px; display:inline-block;'>{item}</span>"
                 for item in selected_companies

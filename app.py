@@ -44,6 +44,7 @@ def main():
     # Extract components
     tickers, tick, corpo = extract_corpos(indices)
 
+
     # Filter tickers with at least 20 years of data and quoted in EUR
     valid_tickers = EUR_tickers(old_tickers(20, tickers))
 
@@ -72,8 +73,10 @@ def main():
         if t not in dico_index:
             dico_index[t] = name
 
+    subset = {ticker: dico_index[ticker] for ticker in valid_tickers if ticker in dico_index}
+
     for index_name, names in index_to_actions.items():
-        index_to_actions[index_name] = [n for n in names if n in dico_index.values()]
+        index_to_actions[index_name] = [n for n in names if n in subset.values()]
     
 
     # rename columns to company names where possible and drop duplicates
@@ -103,6 +106,7 @@ def main():
     if "weights" not in st.session_state:
         st.session_state.weights = None
 
+    
     validate = st.button("Validate Selection")
     if validate:
         if len(selected) == 0:
