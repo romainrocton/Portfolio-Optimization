@@ -20,8 +20,7 @@ from utils.config import dico_pays
 from utils.theme import add_logo, apply_theme
 from utils.stock_selection import stock_selection_page
 
-# --- Background & Texte 
-#apply_theme()
+
 
 st.set_page_config(page_title="European stocks selector & optimizer", layout="wide",initial_sidebar_state="collapsed")
 # --- LOGO FIXE EN HAUT À DROITE ---
