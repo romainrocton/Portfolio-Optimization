@@ -5,7 +5,6 @@ def stock_selection_page(indices, index_to_actions):
 # UI: stock selection
     
     st.write("")
-    selected_display = st.empty()
     
     st.markdown("#### Step 1: Select Indices")
 
