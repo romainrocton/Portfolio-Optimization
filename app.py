@@ -17,7 +17,7 @@ from utils.simulation import simul_EF, simul_Single_PTF
 from utils.visualization import Portfolio_presentation
 from utils.config import THEME_COLORS
 from utils.config import dico_pays
-from utils.theme import add_logo, apply_theme
+from utils.theme import add_logo
 from utils.stock_selection import stock_selection_page
 
 
