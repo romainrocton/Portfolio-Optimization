@@ -7,6 +7,7 @@ from scipy.spatial.distance import pdist, squareform
 from .optimization import port_minvol, port_maxret, port_minvol_ro, port_maxsr
 import streamlit as st
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def bootstrap(returns):
     return resample(returns, replace=True, n_samples=None)
@@ -44,7 +45,7 @@ def efficient_frontier(mean, sigma, truemean, truesigma, nb_assets):
 
 @st.cache_data(ttl=86400)
 def simul_EF(returns, mean, cov, nb_assets):
-    nb_simul = 100
+    nb_simul = 250
     weights_matrix_S = np.zeros((20, nb_assets + 2, nb_simul))
     vect = np.zeros((nb_simul, 40))
     i = 0
@@ -67,8 +68,52 @@ def simul_EF(returns, mean, cov, nb_assets):
     for i in range(20):
         ptf[i] = RES_weights[i, :-2]
 
-    # return five portfolios like in your original notebook (0,4,9,14,19)
-    return ptf[0], ptf[4], ptf[9], ptf[14], ptf[19]
+    # return dictionnary containing all portfolios of the efficient frontier
+    return ptf
+
+def portfolio_selector(type_selection, returns_df,true_mean,true_cov,nb_assets,target=0):
+    
+    #launching simulation
+    returns_array=selected_returns = np.array(returns_df)
+    ptf=simul_EF(returns_array, true_mean, true_cov, nb_assets)
+    
+    #average returns for each optimal portfolio
+    df_column=list(ptf.keys())
+    df_row_m=[]
+    df_row_v=[]
+    df_row_s=[]
+    index_labels = ["Mean", "Vol", "Sharpe"]
+
+    for i in range(len(df_column)):
+        portfolio_r = returns_df.dot(ptf[i])
+        # moments of the portfolio
+        portfolio_return=np.mean(portfolio_r)
+        portfolio_vol=np.std(portfolio_r)
+        portfolio_sharpe=portfolio_return/portfolio_vol
+        #append them into lists (future rows of our df)
+        df_row_m.append(portfolio_return)
+        df_row_v.append(portfolio_vol)
+        df_row_s.append(portfolio_sharpe)
+        #list of moments
+        list_of_moments = [df_row_m, df_row_v, df_row_s]
+        
+
+    df_annual_returns = pd.DataFrame(list_of_moments, columns=df_column,index=index_labels)
+
+    #choice of what to return
+    if type_selection=="Sample_on_frontier":
+        return ptf[0], ptf[4], ptf[9], ptf[14], ptf[19]
+    elif type_selection=="Target_return":
+        row = df_annual_returns.iloc[0]
+        closest_col = (row - target).abs().idxmin()
+        return ptf[closest_col]
+    elif type_selection=="Max_Sharpe":
+        row = df_annual_returns.iloc[2]
+        closest_col = row.idxmax()
+        return ptf[closest_col]
+    else:
+        raise TypeError("Wrong type input, should be Sample_on_frontier, Max_Sharpe or Target_return")
+        
 
 @st.cache_data(ttl=86400)
 def simul_Single_PTF(type,returns, mean, cov, nb_assets,targetreturn=0,rf=0):
@@ -108,33 +153,33 @@ def simul_Single_PTF(type,returns, mean, cov, nb_assets,targetreturn=0,rf=0):
     PTF_Weights = weights_matrix_S[clusteroid_idx,:]
 
     ###to remove after plotting for checking
-    #original=port_minvol_ro(meanS,sigmaS,targetreturn)
-    #og_m=original.T @ mean
-    #og_v=(original.T @ cov @ original) ** 0.5
-    #col_x, col_y = 1, 0  # the two columns you want from the 2nd dimension
+    original=port_minvol_ro(meanS,sigmaS,targetreturn)
+    og_m=original.T @ mean
+    og_v=(original.T @ cov @ original) ** 0.5
+    col_x, col_y = 1, 0  # the two columns you want from the 2nd dimension
 
-    #n_slices = weights_matrix_S.shape[0]
+    n_slices = weights_matrix_S.shape[0]
 
-    #plt.figure(figsize=(6, 5))
+    plt.figure(figsize=(6, 5))
 
-    #x_vals = vect[:, 1]  # volatility
-    #y_vals = vect[:, 0]  # mean return
+    x_vals = vect[:, 1]  # volatility
+    y_vals = vect[:, 0]  # mean return
 
-    #plt.figure(figsize=(6,5))
-    #plt.scatter(x_vals, y_vals, color="blue", label="Simulated portfolios")
+    plt.figure(figsize=(6,5))
+    plt.scatter(x_vals, y_vals, color="blue", label="Simulated portfolios")
 
     # Clusteroid
-    #plt.scatter(clusteroid[1], clusteroid[0], color="red", s=80, marker="X", label="Clusteroid")
+    plt.scatter(clusteroid[1], clusteroid[0], color="red", s=80, marker="X", label="Clusteroid")
 
     # Original portfolio
-    #plt.scatter(og_v, og_m, color="green", s=80, marker="D", label="Original")
+    plt.scatter(og_v, og_m, color="green", s=80, marker="D", label="Original")
 
-    #plt.xlabel("Volatility")
-    #plt.ylabel("Mean Return")
-    #plt.title("Simulated Efficient Frontiers + Clusteroid")
-    #plt.grid(True)
-    #plt.legend()
+    plt.xlabel("Volatility")
+    plt.ylabel("Mean Return")
+    plt.title("Simulated Efficient Frontiers + Clusteroid")
+    plt.grid(True)
+    plt.legend()
 
-    #st.pyplot(plt)
+    st.pyplot(plt)
     # Returns the clusteriod portfolio 
     return PTF_Weights
